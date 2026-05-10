@@ -1,0 +1,23 @@
+{
+  "node_env": "test",
+  "app": {
+    "secretKey": "test-session-secret",
+    "database": {
+      "testUri": "sqlite:///:memory:",
+      "mainHost": "localhost",
+      "primaryHost": "localhost",
+      "secondaryHost": "localhost",
+      "logging": false
+    },
+    "redis": {
+      "host": "127.0.0.1",
+      "port": 6379
+    },
+    "emailSender": {
+      "authKey": "test-resend-api-key",
+      "senderEmail": "noreply-test@bnr.local",
+      "senderName": "BNR Test"
+    },
+    "jwtSecret": "test-secret-key"
+  }
+}

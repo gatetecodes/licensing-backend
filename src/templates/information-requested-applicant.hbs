@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>More information requested</title>
+  </head>
+  <body style="margin: 0; padding: 0; background: #f6f8fb; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; color: #753918;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background: #f6f8fb; padding: 32px 16px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 560px; background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb;">
+            <tr>
+              <td style="padding: 24px 24px 20px; background: linear-gradient(180deg, #753918 0%, #4f1f08 100%); text-align: center; border-bottom: 3px solid #f7c35f;">
+                {{#if logoCid}}
+                  <img src="{{logoCid}}" alt="National Bank of Rwanda" width="112" style="display: block; margin: 0 auto; max-width: 112px; height: auto;" />
+                {{else}}
+                  <p style="margin: 0; color: #ffffff; font-size: 18px; font-weight: 700;">National Bank of Rwanda</p>
+                {{/if}}
+                <p style="margin: 10px 0 0; color: #f7c35f; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;">Licensing Portal</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 32px; background: #ffffff;">
+                <h1 style="margin: 0 0 16px; font-size: 22px; line-height: 1.35; color: #753918; font-weight: 700;">
+                  More information requested
+                </h1>
+                <p style="margin: 0 0 12px; font-size: 16px; line-height: 1.6; color: rgba(0, 0, 0, 0.65);">
+                  Hello {{applicantName}},
+                </p>
+                <p style="margin: 0 0 8px; font-size: 15px; line-height: 1.6; color: rgba(0, 0, 0, 0.75);">
+                  Reference: <strong>{{applicationReference}}</strong>
+                </p>
+                <p style="margin: 0 0 8px; font-size: 15px; line-height: 1.6; color: rgba(0, 0, 0, 0.75);">
+                  Institution: <strong>{{institutionName}}</strong>
+                </p>
+                {{#if reviewerSummaryNote}}
+                  <p style="margin: 18px 0 8px; font-size: 14px; font-weight: 700; color: #753918;">Reviewer summary</p>
+                  <p style="margin: 0 0 24px; font-size: 15px; line-height: 1.6; color: rgba(0, 0, 0, 0.75); background: #f6f8fb; padding: 12px; border-radius: 8px;">
+                    {{reviewerSummaryNote}}
+                  </p>
+                {{/if}}
+                {{#if requestItemCount}}
+                  <p style="margin: 0 0 8px; font-size: 15px; line-height: 1.6; color: rgba(0, 0, 0, 0.75);">
+                    Requested item count: <strong>{{requestItemCount}}</strong>
+                  </p>
+                {{/if}}
+                {{#if requestSummary}}
+                  <p style="margin: 18px 0 8px; font-size: 14px; font-weight: 700; color: #753918;">Requested items</p>
+                  <p style="white-space: pre-line; margin: 0 0 24px; font-size: 15px; line-height: 1.6; color: rgba(0, 0, 0, 0.75); background: #f6f8fb; padding: 12px; border-radius: 8px;">
+                    {{requestSummary}}
+                  </p>
+                {{/if}}
+                <p style="margin: 0 0 24px; font-size: 15px; line-height: 1.6; color: rgba(0, 0, 0, 0.75);">
+                  Please respond to each requested item in the portal, upload the requested files, then resubmit the application.
+                </p>
+                {{#if portalUrl}}
+                  <p style="margin: 0;">
+                    <a href="{{portalUrl}}" style="display: inline-block; background: #753918; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-size: 16px; font-weight: 600; border: 2px solid #f7c35f;">
+                      Open Application
+                    </a>
+                  </p>
+                {{/if}}
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

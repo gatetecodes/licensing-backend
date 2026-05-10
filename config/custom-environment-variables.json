@@ -1,0 +1,56 @@
+{
+  "app": {
+    "url": "BNR_APP_URL",
+    "apiUrl": "BNR_API_URL",
+    "secretKey": "BNR_SECRET_KEY",
+    "database": {
+      "uri": "BNR_DATABASE_URI",
+      "mainHost": "BNR_DATABASE_MAIN_HOST",
+      "primaryHost": "BNR_DATABASE_PRIMARY_HOST",
+      "secondaryHost": "BNR_DATABASE_SECONDARY_HOST",
+      "testUri": "BNR_TEST_DATABASE_URI",
+      "username": "BNR_DATABASE_USERNAME",
+      "password": "BNR_DATABASE_PASSWORD",
+      "dbName": "BNR_DATABASE_NAME"
+    },
+    "documents": {
+      "storageDir": "BNR_DOCUMENTS_STORAGE_DIR"
+    },
+    "redis": {
+      "host": "BNR_REDIS_HOST",
+      "port": "BNR_REDIS_PORT",
+      "password": "BNR_REDIS_PASSWORD"
+    },
+    "maxUploadSize": "BNR_MAX_UPLOAD_SIZE",
+    "emailSender": {
+      "authKey": "BNR_RESEND_API_KEY",
+      "senderEmail": "BNR_RESEND_SENDER_EMAIL",
+      "senderName": "BNR_RESEND_SENDER_NAME"
+    },
+    "seed": {
+      "password": "BNR_SEED_PASSWORD",
+      "institutionName": "BNR_SEED_INSTITUTION_NAME",
+      "adminName": "BNR_SEED_ADMIN_NAME",
+      "adminEmail": "BNR_SEED_ADMIN_EMAIL",
+      "applicantOneName": "BNR_SEED_APPLICANT_ONE_NAME",
+      "applicantOneEmail": "BNR_SEED_APPLICANT_ONE_EMAIL",
+      "applicantOneInstitutionName": "BNR_SEED_APPLICANT_ONE_INSTITUTION_NAME",
+      "applicantTwoName": "BNR_SEED_APPLICANT_TWO_NAME",
+      "applicantTwoEmail": "BNR_SEED_APPLICANT_TWO_EMAIL",
+      "applicantTwoInstitutionName": "BNR_SEED_APPLICANT_TWO_INSTITUTION_NAME",
+      "applicantThreeName": "BNR_SEED_APPLICANT_THREE_NAME",
+      "applicantThreeEmail": "BNR_SEED_APPLICANT_THREE_EMAIL",
+      "applicantThreeInstitutionName": "BNR_SEED_APPLICANT_THREE_INSTITUTION_NAME",
+      "reviewerOneName": "BNR_SEED_REVIEWER_ONE_NAME",
+      "reviewerOneEmail": "BNR_SEED_REVIEWER_ONE_EMAIL",
+      "reviewerTwoName": "BNR_SEED_REVIEWER_TWO_NAME",
+      "reviewerTwoEmail": "BNR_SEED_REVIEWER_TWO_EMAIL",
+      "approverOneName": "BNR_SEED_APPROVER_ONE_NAME",
+      "approverOneEmail": "BNR_SEED_APPROVER_ONE_EMAIL",
+      "approverTwoName": "BNR_SEED_APPROVER_TWO_NAME",
+      "approverTwoEmail": "BNR_SEED_APPROVER_TWO_EMAIL"
+    },
+    "verifyEmailUri": "BNR_VERIFY_EMAIL_URI",
+    "resetPasswordUri": "BNR_RESET_PASSWORD_URI"
+  }
+}

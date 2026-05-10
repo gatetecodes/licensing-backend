@@ -1,0 +1,9 @@
+{
+  "app": {
+    "name": "BNR Licensing Portal",
+    "version": "1.0.0",
+    "documents": {
+      "storageDir": "storage/documents"
+    }
+  }
+}
