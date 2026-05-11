@@ -13,7 +13,6 @@ import { Roles, RoleType } from '../types/role.types';
 import { UserStatus, UserStatusType } from '../types/user.types';
 import { UserHelper } from '../helpers/user-helper';
 import {
-  ApplicationReviewOutcomes,
   ApplicationStates,
   InstitutionTypes
 } from '../types/application.types';
@@ -192,114 +191,77 @@ const checkUserRole = async (userId: string, roleId: string): Promise<void> => {
   } as any);
 };
 
+const clearSeedApplicationReviews = async (
+  applicationId: string
+): Promise<void> => {
+  await applicationReviewRepository.destroy({
+    where: { application_id: applicationId }
+  });
+};
+
+/** In-progress drafts tied to specific seeded applicants (not workflow-complete). */
 const checkSeedApplications = async (args: {
-  applicantId: string;
-  reviewerId: string;
+  applicantOneId: string;
+  applicantTwoId: string;
 }): Promise<void> => {
-  const submittedReference = 'BNR-SEED-SUBMITTED-0001';
-  const readyReference = 'BNR-SEED-READY-0001';
-  const submittedAt = new Date('2026-01-15T09:00:00.000Z');
-  const reviewStartAt = new Date('2026-01-16T08:00:00.000Z');
-  const reviewCompletedAt = new Date('2026-01-16T15:30:00.000Z');
-
-  const existingSubmitted = await applicationRepository.findOne({
-    where: { reference_number: submittedReference }
-  });
-
-  if (existingSubmitted) {
-    await existingSubmitted.update({
-      applicant_id: args.applicantId,
-      institution_name: 'Submitted Seed Institution',
-      institution_type: InstitutionTypes.BANK,
-      current_state: ApplicationStates.SUBMITTED,
-      submitted_at: submittedAt,
-      reviewed_by_id: undefined,
-      decisioned_by_id: undefined,
-      decision_at: undefined,
-      decision_reason: undefined,
-      lock_version: 1
-    });
-  } else {
-    await applicationRepository.create({
-      reference_number: submittedReference,
-      applicant_id: args.applicantId,
-      institution_name: 'Submitted Seed Institution',
-      institution_type: InstitutionTypes.BANK,
-      current_state: ApplicationStates.SUBMITTED,
-      submitted_at: submittedAt,
-      reviewed_by_id: undefined,
-      decisioned_by_id: undefined,
-      decision_at: undefined,
-      decision_reason: undefined,
-      lock_version: 1
-    } as any);
-  }
-
-  let readyApplication = await applicationRepository.findOne({
-    where: { reference_number: readyReference }
-  });
-
-  if (readyApplication) {
-    await readyApplication.update({
-      applicant_id: args.applicantId,
-      institution_name: 'Ready Seed Institution',
-      institution_type: InstitutionTypes.MICROFINANCE,
-      current_state: ApplicationStates.READY_FOR_DECISION,
-      submitted_at: submittedAt,
-      reviewed_by_id: args.reviewerId,
-      decisioned_by_id: undefined,
-      decision_at: undefined,
-      decision_reason: undefined,
-      lock_version: 2
-    });
-  } else {
-    readyApplication = await applicationRepository.create({
-      reference_number: readyReference,
-      applicant_id: args.applicantId,
-      institution_name: 'Ready Seed Institution',
-      institution_type: InstitutionTypes.MICROFINANCE,
-      current_state: ApplicationStates.READY_FOR_DECISION,
-      submitted_at: submittedAt,
-      reviewed_by_id: args.reviewerId,
-      decisioned_by_id: undefined,
-      decision_at: undefined,
-      decision_reason: undefined,
-      lock_version: 2
-    } as any);
-  }
-
-  const existingReviewCycle = await applicationReviewRepository.findOne({
-    where: {
-      application_id: readyApplication.id,
-      cycle_number: 1
+  const seedDrafts: Array<{
+    reference_number: string;
+    applicant_id: string;
+    institution_name: string;
+    institution_type: (typeof InstitutionTypes)[keyof typeof InstitutionTypes];
+  }> = [
+    {
+      reference_number: 'BNR-SEED-SUBMITTED-0001',
+      applicant_id: args.applicantOneId,
+      institution_name: applicantOneInstitutionName,
+      institution_type: InstitutionTypes.BANK
+    },
+    {
+      reference_number: 'BNR-SEED-READY-0001',
+      applicant_id: args.applicantTwoId,
+      institution_name: applicantTwoInstitutionName,
+      institution_type: InstitutionTypes.MICROFINANCE
     }
-  });
+  ];
 
-  if (existingReviewCycle) {
-    await existingReviewCycle.update({
-      reviewer_id: args.reviewerId,
-      started_at: reviewStartAt,
-      completed_at: reviewCompletedAt,
-      outcome: ApplicationReviewOutcomes.READY_FOR_DECISION,
-      notes: 'Seed review cycle completed and marked ready for decision'
+  const draftFields = {
+    current_state: ApplicationStates.DRAFT,
+    submitted_at: null,
+    reviewed_by_id: null,
+    decisioned_by_id: null,
+    decision_at: null,
+    decision_reason: null,
+    lock_version: 0
+  } as const;
+
+  for (const draft of seedDrafts) {
+    const existing = await applicationRepository.findOne({
+      where: { reference_number: draft.reference_number }
     });
-    return;
-  }
 
-  await applicationReviewRepository.create({
-    application_id: readyApplication.id,
-    reviewer_id: args.reviewerId,
-    cycle_number: 1,
-    started_at: reviewStartAt,
-    completed_at: reviewCompletedAt,
-    outcome: ApplicationReviewOutcomes.READY_FOR_DECISION,
-    notes: 'Seed review cycle completed and marked ready for decision'
-  } as any);
+    if (existing) {
+      await existing.update({
+        applicant_id: draft.applicant_id,
+        institution_name: draft.institution_name,
+        institution_type: draft.institution_type,
+        ...draftFields
+      } as any);
+      await clearSeedApplicationReviews(existing.id);
+    } else {
+      await applicationRepository.create({
+        reference_number: draft.reference_number,
+        applicant_id: draft.applicant_id,
+        institution_name: draft.institution_name,
+        institution_type: draft.institution_type,
+        ...draftFields
+      } as any);
+    }
+  }
 };
 
 const run = async (): Promise<void> => {
   const helper = new UserHelper();
-  const usersByRole = new Map<RoleType, { id: string; email: string }>();
+  const seededApplicants: { id: string; email: string }[] = [];
 
   for (const role of Object.values(Roles)) {
     await checkRole(role);
@@ -316,19 +278,23 @@ const run = async (): Promise<void> => {
     }
 
     await checkUserRole(user.id, role.id);
-    usersByRole.set(seedUser.role, user);
+    if (seedUser.role === Roles.APPLICANT) {
+      seededApplicants.push(user);
+    }
   }
 
-  const applicant = usersByRole.get(Roles.APPLICANT);
-  const reviewer = usersByRole.get(Roles.REVIEWER);
+  const applicantOne = seededApplicants[0];
+  const applicantTwo = seededApplicants[1];
 
-  if (!applicant || !reviewer) {
-    throw new Error('Required seeded users are missing');
+  if (!applicantOne || !applicantTwo) {
+    throw new Error(
+      'Expected at least two seeded applicants for draft applications'
+    );
   }
 
   await checkSeedApplications({
-    applicantId: applicant.id,
-    reviewerId: reviewer.id
+    applicantOneId: applicantOne.id,
+    applicantTwoId: applicantTwo.id
   });
 };
 
@@ -340,7 +306,18 @@ run()
         data: {
           users: seedUsers.map((seedUser) => seedUser.email),
           password: getSeedPassword(),
-          applications: ['BNR-SEED-SUBMITTED-0001', 'BNR-SEED-READY-0001']
+          applications: [
+            {
+              reference: 'BNR-SEED-SUBMITTED-0001',
+              state: ApplicationStates.DRAFT,
+              applicantEmail: applicantOneEmail
+            },
+            {
+              reference: 'BNR-SEED-READY-0001',
+              state: ApplicationStates.DRAFT,
+              applicantEmail: applicantTwoEmail
+            }
+          ]
         }
       })
     );
