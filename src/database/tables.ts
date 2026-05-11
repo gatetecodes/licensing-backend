@@ -3,6 +3,7 @@ export const Tables = {
   Role: 'roles',
   Application: 'applications',
   UserRole: 'user_roles',
+  UserAuditLog: 'user_audit_logs',
   ApplicationReview: 'application_reviews',
   Document: 'documents',
   DocumentVersion: 'document_versions',

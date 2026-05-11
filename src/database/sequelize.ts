@@ -11,6 +11,7 @@ import SessionModel from './models/session.model';
 import AuthTokenModel from './models/auth-token.model';
 import UserRoleModel from './models/user-role.model';
 import RoleModel from './models/role.model';
+import UserAuditLogModel from './models/user-audit-log.model';
 
 const dbUri: string =
   config.get('node_env') === 'test'
@@ -68,3 +69,5 @@ export const sessionRepository = sequelize.getRepository(SessionModel);
 export const authTokenRepository = sequelize.getRepository(AuthTokenModel);
 export const userRoleRepository = sequelize.getRepository(UserRoleModel);
 export const roleRepository = sequelize.getRepository(RoleModel);
+export const userAuditLogRepository =
+  sequelize.getRepository(UserAuditLogModel);
