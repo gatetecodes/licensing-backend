@@ -33,6 +33,8 @@ import {
 } from '../../../middlewares/csrf.middleware';
 import { AuthenticatedRequest } from '../../../types/common.types';
 import { RedisKeys } from '../../../constants/redis-keys';
+import { userAuditService } from '../../../services/user-audit.service';
+import { UserAuditLogActionTypes } from '../../../types/user-audit-log.types';
 
 const LOGIN_ATTEMPT_WINDOW_SECONDS = 15 * 60;
 const MAX_LOGIN_ATTEMPTS_PER_WINDOW = 8;
@@ -100,6 +102,8 @@ export class AuthRepository extends BaseRepository<User> {
       const verificationTokenHash =
         this.userHelper.generateAuthTokenHash(verificationToken);
 
+      const requestId = (req as Request & { requestId?: string }).requestId;
+
       const user = await sequelize.transaction(async (transaction) => {
         const applicantRole = await roleRepository.findOne({
           where: { name: Roles.APPLICANT },
@@ -139,6 +143,19 @@ export class AuthRepository extends BaseRepository<User> {
           },
           { transaction }
         );
+
+        await userAuditService.writeAuditEvent({
+          userId: newUser.id,
+          actionType: UserAuditLogActionTypes.APPLICANT_REGISTERED,
+          requestId,
+          ipAddress: req.ip,
+          userAgent: req.get('user-agent'),
+          metadata: {
+            email: newUser.email,
+            institution_name: newUser.institution_name
+          },
+          transaction
+        });
 
         return newUser;
       });
@@ -240,8 +257,9 @@ export class AuthRepository extends BaseRepository<User> {
       }
 
       const rawPasswordSetupToken = this.userHelper.generateStringAuthToken();
-      const passwordSetupTokenHash =
-        this.userHelper.generateAuthTokenHash(rawPasswordSetupToken);
+      const passwordSetupTokenHash = this.userHelper.generateAuthTokenHash(
+        rawPasswordSetupToken
+      );
 
       const invitedUser = await sequelize.transaction(async (transaction) => {
         const internalRole = await roleRepository.findOne({
@@ -386,6 +404,18 @@ export class AuthRepository extends BaseRepository<User> {
           },
           { transaction }
         );
+
+        await userAuditService.writeAuditEvent({
+          userId: user.id,
+          actionType: UserAuditLogActionTypes.APPLICANT_EMAIL_VERIFIED,
+          requestId: req.requestId,
+          ipAddress: req.ip,
+          userAgent: req.get('user-agent'),
+          metadata: {
+            email: user.email
+          },
+          transaction
+        });
       });
 
       const verifiedUser = await userRepository.findByPk(
@@ -755,7 +785,7 @@ export class AuthRepository extends BaseRepository<User> {
         template: 'reset-password',
         context: {
           name: user.name,
-          url: `${config.get('app.baseUri.resetPasswordUri')}?token=${resetPasswordToken}`,
+          url: `${config.get('app.resetPasswordUri')}?token=${resetPasswordToken}`,
           newAccount: true
         }
       });
@@ -979,7 +1009,6 @@ export class AuthRepository extends BaseRepository<User> {
       return { allowed: true };
     }
   };
-
 
   /**
    * @description Record failed login attempt
