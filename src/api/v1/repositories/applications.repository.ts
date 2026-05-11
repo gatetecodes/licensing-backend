@@ -46,6 +46,14 @@ import {
   invalidateApplicationReadCaches
 } from '../../../helpers/application-cache.helper';
 
+const requiredSubmissionDocumentTypes = [
+  DocumentTypes.BUSINESS_PLAN,
+  DocumentTypes.CERTIFICATE_OF_INCORPORATION,
+  DocumentTypes.SHAREHOLDING_STRUCTURE,
+  DocumentTypes.CAPITAL_ADEQUACY_EVIDENCE,
+  DocumentTypes.GOVERNANCE_DOCUMENT
+];
+
 const sanitizeApplication = (application: ApplicationModel) => ({
   id: application.id,
   reference_number: application.reference_number,
@@ -907,14 +915,13 @@ export class ApplicationsRepository extends BaseRepository<ApplicationModel> {
       return `Complete required draft fields before submit: ${missingFields.join(', ')}`;
     }
 
-    const requiredDocumentTypes = Object.values(DocumentTypes);
     const documents = await documentRepository.findAll({
       where: {
         application_id: applicationId
       }
     });
     const uploadedTypes = new Set(documents.map((doc) => doc.document_type));
-    const missingDocumentTypes = requiredDocumentTypes.filter(
+    const missingDocumentTypes = requiredSubmissionDocumentTypes.filter(
       (type) => !uploadedTypes.has(type)
     );
 

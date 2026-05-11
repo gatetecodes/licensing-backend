@@ -18,6 +18,7 @@ const app = express();
 
 const nodeEnv = config.get('node_env') as string;
 const sessionSecret = config.get('app.secretKey') as string;
+const isSecureEnv = nodeEnv === 'production' || nodeEnv === 'staging';
 
 const mainRoutes = new MainRoutes().router;
 const authRoutes = new AuthRoutes().router;
@@ -41,17 +42,22 @@ app.use(express.json({ limit: jsonLimit }));
 
 app.use(express.urlencoded({ extended: true, limit: jsonLimit }));
 
+if (isSecureEnv) {
+  app.set('trust proxy', 1);
+}
+
 app.use(
   session({
     name: 'bnr.sid',
     secret: sessionSecret,
     store: sessionStore,
+    proxy: isSecureEnv,
     resave: false,
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
       sameSite: 'strict',
-      secure: nodeEnv === 'production',
+      secure: isSecureEnv,
       maxAge: 1000 * 60 * 60 * 8 // 8 hours
     }
   })
